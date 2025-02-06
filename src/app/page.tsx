@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useCanvas } from "@/hooks/use-canvas";
+import { Logo } from "@/components/ui/logo";
 
 export default function Home() {
   const {
@@ -41,7 +42,7 @@ export default function Home() {
       <nav className="border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
-            <div className="text-xl font-bold">Plotify</div>
+            <Logo />
             <div className="flex items-center gap-4">
               {confidence > 0 && (
                 <div className="text-sm text-gray-600">

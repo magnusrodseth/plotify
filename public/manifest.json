@@ -1,0 +1,21 @@
+{
+    "name": "Plotify",
+    "short_name": "Plotify",
+    "description": "A modern, interactive function plotter that uses regression analysis to estimate mathematical functions from hand-drawn curves.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#ffffff",
+    "icons": [
+        {
+            "src": "/icon.png",
+            "sizes": "32x32",
+            "type": "image/png"
+        },
+        {
+            "src": "/apple-touch-icon.png",
+            "sizes": "180x180",
+            "type": "image/png"
+        }
+    ]
+}
