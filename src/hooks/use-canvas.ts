@@ -40,13 +40,26 @@ export const useCanvas = () => {
     clearDrawing();
   };
 
+  const handleRegressionTypeChange = (type: RegressionType) => {
+    setRegressionType(type);
+    clearCanvas();
+  };
+
   const handleZoomIn = () => {
-    setZoom((prev) => Math.min(prev * 1.2, 5));
+    setZoom((prev) => {
+      const currentStep = Math.round(prev * 2) / 2; // Round to nearest 0.5
+      const newZoom = Math.min(currentStep + 0.5, 5); // Add 0.5 and clamp to max 5
+      return newZoom;
+    });
     clearDrawing();
   };
 
   const handleZoomOut = () => {
-    setZoom((prev) => Math.max(prev / 1.2, 0.2));
+    setZoom((prev) => {
+      const currentStep = Math.round(prev * 2) / 2; // Round to nearest 0.5
+      const newZoom = Math.max(currentStep - 0.5, 0.5); // Subtract 0.5 and clamp to min 0.5
+      return newZoom;
+    });
     clearDrawing();
   };
 
@@ -66,9 +79,10 @@ export const useCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // Calculate new zoom level
-    const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1; // Zoom out (0.9) or in (1.1)
-    const newZoom = Math.min(Math.max(zoom * zoomFactor, 0.2), 5); // Clamp between 0.2 and 5
+    // Calculate new zoom level in steps of 0.5
+    const currentStep = Math.round(zoom * 2) / 2; // Round to nearest 0.5
+    const newStep = e.deltaY > 0 ? currentStep - 0.5 : currentStep + 0.5;
+    const newZoom = Math.min(Math.max(newStep, 0.5), 5); // Clamp between 0.5 and 5
 
     setZoom(newZoom);
     clearDrawing();
@@ -114,7 +128,7 @@ export const useCanvas = () => {
     setPoints(newPoints);
 
     // Estimate and draw function if we have enough points
-    if (points.length > 1) {
+    if (newPoints.length > 1) {
       const mathPoints = newPoints.map((p) =>
         canvasToMath(p, canvas, GRID_SIZE, UNITS_PER_GRID)
       );
@@ -148,12 +162,24 @@ export const useCanvas = () => {
     drawPoints(ctx, points);
 
     // Update the estimated function
-    const mathPoints = points.map((p) =>
-      canvasToMath(p, canvas, GRID_SIZE, UNITS_PER_GRID)
-    );
-    const result = estimateFunction(mathPoints, regressionType);
-    setEstimatedFunction(result.function);
-    setConfidence(result.confidence);
+    if (points.length > 1) {
+      const mathPoints = points.map((p) =>
+        canvasToMath(p, canvas, GRID_SIZE, UNITS_PER_GRID)
+      );
+      const result = estimateFunction(mathPoints, regressionType);
+      setEstimatedFunction(result.function);
+      setConfidence(result.confidence);
+      if (result.function) {
+        plotEstimatedFunction(
+          ctx,
+          canvas,
+          result.function,
+          regressionType,
+          GRID_SIZE,
+          UNITS_PER_GRID
+        );
+      }
+    }
   };
 
   // Update canvas size and redraw when container size changes
@@ -218,7 +244,7 @@ export const useCanvas = () => {
     estimatedFunction,
     confidence,
     regressionType,
-    setRegressionType,
+    setRegressionType: handleRegressionTypeChange,
     handleGridDensityChange,
     handleZoomIn,
     handleZoomOut,
